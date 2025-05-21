@@ -24,7 +24,6 @@ interface LoginData {
 }
 
 interface UpdateUserData {
-  id?: number;
   name?: string;
   email?: string;
   password?: string;
@@ -46,8 +45,8 @@ export const authService = {
     return response.data;
   },
 
-  async updateUser(data: UpdateUserData): Promise<AuthResponse> {
-    const response = await api.put<AuthResponse>('/users/update', data);
+  async updateUser(id: number, data: UpdateUserData): Promise<AuthResponse> {
+    const response = await api.put<AuthResponse>(`/users/${id}`, data);
     localStorage.setItem('token', response.data.token);
     localStorage.setItem('user', JSON.stringify(response.data.user));
     return response.data;
