@@ -1,0 +1,159 @@
+import { Box, Button, Flex, FormControl, FormLabel, Input, Text, Avatar, HStack, Textarea, Image } from '@chakra-ui/react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { articleService } from '../services/articles';
+import DashboardLayout from '../components/DashboardLayout';
+
+export default function ArticleForm() {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+      setImagePreview(URL.createObjectURL(e.target.files[0]));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await articleService.createArticle({ title, content, featuredImage: imageFile || undefined });
+      navigate('/');
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Erro ao criar artigo');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <DashboardLayout>
+      {/* Conteúdo */}
+      <Box w="100%" minH="calc(100vh - 80px)" bg="gray.50" py={6}>
+        <Box maxW="1200px" mx="auto" px={6}>
+          {/* Cabeçalho do Formulário */}
+          <Flex align="center" justify="space-between" mb={6} bg="white" p={4} borderRadius="lg" shadow="sm">
+            <Text fontSize="xl" fontWeight="semibold">Novo Artigo</Text>
+            <HStack spacing={3}>
+              <Button colorScheme="red" variant="solid" onClick={() => navigate(-1)} size="md">
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                form="article-form" 
+                colorScheme="blackAlpha" 
+                bg="black" 
+                color="white" 
+                isLoading={loading}
+                size="md"
+              >
+                Salvar
+              </Button>
+            </HStack>
+          </Flex>
+
+          {/* Formulário */}
+          <Box bg="white" p={6} borderRadius="lg" shadow="sm">
+            <form id="article-form" onSubmit={handleSubmit}>
+              <FormControl mb={6}>
+                <FormLabel>Título</FormLabel>
+                <Input 
+                  placeholder="Adicione um título" 
+                  value={title} 
+                  onChange={e => setTitle(e.target.value)} 
+                  required 
+                  size="md"
+                  fontSize="md"
+                />
+              </FormControl>
+
+              <FormControl mb={6}>
+                <FormLabel>Inserir imagem</FormLabel>
+                <Flex gap={6} align="flex-start">
+                  <Box flex={1}>
+                    <Input 
+                      value={imageFile ? imageFile.name : ''} 
+                      placeholder="Adicione uma imagem" 
+                      isReadOnly
+                      size="md"
+                    />
+                    <Button 
+                      as="label" 
+                      htmlFor="image-upload" 
+                      colorScheme="blue" 
+                      cursor="pointer" 
+                      mt={3}
+                      size="md"
+                    >
+                      Selecionar
+                    </Button>
+                    <Input 
+                      id="image-upload" 
+                      type="file" 
+                      accept="image/*" 
+                      display="none" 
+                      onChange={handleImageChange} 
+                    />
+                  </Box>
+                  <Box 
+                    w="300px" 
+                    h="200px" 
+                    bg="#f2f4f6" 
+                    borderRadius="md" 
+                    display="flex" 
+                    alignItems="center" 
+                    justifyContent="center"
+                    overflow="hidden"
+                  >
+                    {imagePreview ? (
+                      <Image 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        maxH="100%" 
+                        maxW="100%" 
+                        objectFit="contain" 
+                      />
+                    ) : (
+                      <svg width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="gray">
+                        <rect width="100%" height="100%" fill="none" />
+                        <path d="M3 19V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm16 0-4.5-6-3.5 4.5-2.5-3L3 19m16 0H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2Z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                      </svg>
+                    )}
+                  </Box>
+                </Flex>
+              </FormControl>
+
+              <FormControl mb={4}>
+                <FormLabel>Texto</FormLabel>
+                <Textarea 
+                  placeholder="Escreva seu artigo" 
+                  value={content} 
+                  onChange={e => setContent(e.target.value)} 
+                  minH="300px"
+                  size="md"
+                  fontSize="md"
+                  required 
+                />
+              </FormControl>
+
+              {error && (
+                <Text color="red.500" fontSize="md" mt={3}>
+                  {error}
+                </Text>
+              )}
+            </form>
+          </Box>
+        </Box>
+      </Box>
+    </DashboardLayout>
+  );
+} 
