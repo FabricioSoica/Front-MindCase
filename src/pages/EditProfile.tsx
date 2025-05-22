@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { authService } from '../services/auth';
 import DashboardLayout from '../components/DashboardLayout';
+import Swal from 'sweetalert2';
 
 interface UserData {
   id: number;
@@ -51,8 +52,15 @@ export default function EditProfile() {
     setLoading(true);
 
     if (!user) {
-      setError('Dados do usuário não disponíveis.');
+      const errorMessage = 'Dados do usuário não disponíveis.';
+      setError(errorMessage);
       setLoading(false);
+      Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
       return;
     }
 
@@ -67,9 +75,24 @@ export default function EditProfile() {
 
       const updatedUser = { ...user, name: name };
       localStorage.setItem('user', JSON.stringify(updatedUser));
+
+      await Swal.fire({
+        title: 'Sucesso!',
+        text: 'Perfil atualizado com sucesso!',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
+
       navigate(`/user/${user.id}`);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Erro ao atualizar perfil');
+      const errorMessage = err?.response?.data?.message || 'Erro ao atualizar perfil';
+      setError(errorMessage);
+      Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     } finally {
       setLoading(false);
     }
@@ -105,7 +128,7 @@ export default function EditProfile() {
               <Button colorScheme="red" variant="solid" onClick={() => navigate(-1)} minW="110px">Cancelar</Button>
               <Button type="submit" colorScheme="blackAlpha" bg="black" color="white" isLoading={loading} minW="110px">Salvar</Button>
             </HStack>
-            {error && <Text color="red.500" mt={2}>{error}</Text>}
+            {/* {error && <Text color="red.500" mt={2}>{error}</Text>} */}
           </form>
         </Box>
         <Box minW="260px" display="flex" flexDirection="column" alignItems="center" mt={12}>

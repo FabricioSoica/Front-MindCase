@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { articleService } from '../services/articles';
 import DashboardLayout from '../components/DashboardLayout';
+import Swal from 'sweetalert2';
 
 export default function ArticleForm() {
   const [title, setTitle] = useState('');
@@ -26,9 +27,24 @@ export default function ArticleForm() {
     setLoading(true);
     try {
       await articleService.createArticle({ title, content, featuredImage: imageFile || undefined });
+
+      await Swal.fire({
+        title: 'Sucesso!',
+        text: 'Artigo criado com sucesso!',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
+
       navigate('/');
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Erro ao criar artigo');
+      const errorMessage = err?.response?.data?.message || 'Erro ao criar artigo';
+      setError(errorMessage);
+       Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     } finally {
       setLoading(false);
     }
@@ -145,11 +161,11 @@ export default function ArticleForm() {
                 />
               </FormControl>
 
-              {error && (
+              {/* {error && (
                 <Text color="red.500" fontSize="md" mt={3}>
                   {error}
                 </Text>
-              )}
+              )} */}
             </form>
           </Box>
         </Box>

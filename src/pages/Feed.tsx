@@ -3,6 +3,7 @@ import { Box, Text, Image, VStack, Flex, SimpleGrid, Heading } from '@chakra-ui/
 import DashboardLayout from "../components/DashboardLayout";
 import { articleService } from '../services/articles';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 interface Article {
   id: number;
@@ -23,8 +24,14 @@ export default function Feed() {
       try {
         const data = await articleService.getArticles();
         setArticles(data.articles);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Erro ao buscar artigos:", error);
+        Swal.fire({
+          title: 'Erro ao carregar artigos!',
+          text: error?.message || 'Não foi possível carregar os artigos. Tente novamente mais tarde.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       }
     }
     fetchArticles();

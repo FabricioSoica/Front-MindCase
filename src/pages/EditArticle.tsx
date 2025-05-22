@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Button, Flex, FormControl, FormLabel, Input, Text, HStack, Textarea, Image, Spinner } from '@chakra-ui/react';
 import DashboardLayout from '../components/DashboardLayout';
 import { articleService } from '../services/articles';
+import Swal from 'sweetalert2';
 
 export default function EditArticle() {
   const { id } = useParams();
@@ -19,21 +20,40 @@ export default function EditArticle() {
     async function fetchArticle() {
       setLoading(true);
       try {
-        const data = await articleService.getArticleById(id!);
+        const data = await articleService.getArticleById(Number(id!));
         setTitle(data.title);
         setContent(data.content);
         if (data.featuredImage) {
-          const fileName = data.featuredImage.replace(/^.*[\\/]/, '');
-          setImagePreview(`http://localhost:3000/uploads/${fileName}`);
+          const imageUrl = data.featuredImage.startsWith('http') ? data.featuredImage : `http://localhost:3000${data.featuredImage}`;
+          setImagePreview(imageUrl);
         }
       } catch (err: any) {
-        setError('Erro ao carregar artigo');
+        const errorMessage = err?.response?.data?.message || 'Erro ao carregar artigo';
+        setError(errorMessage);
+        Swal.fire({
+          title: 'Erro!',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       } finally {
         setLoading(false);
       }
     }
-    fetchArticle();
-  }, [id]);
+    if (id) {
+      fetchArticle();
+    } else {
+      const errorMessage = 'ID do artigo não fornecido.';
+      setError(errorMessage);
+      Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      setLoading(false);
+    }
+  }, [id, navigate]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -47,10 +67,25 @@ export default function EditArticle() {
     setError('');
     setSaving(true);
     try {
-      await articleService.updateArticle(id!, { title, content, featuredImage: imageFile || undefined });
+      await articleService.updateArticle(Number(id!), { title, content, featuredImage: imageFile || undefined });
+
+      await Swal.fire({
+        title: 'Sucesso!',
+        text: 'Artigo atualizado com sucesso!',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
+
       navigate(`/article/${id}`);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Erro ao atualizar artigo');
+      const errorMessage = err?.response?.data?.message || 'Erro ao atualizar artigo';
+      setError(errorMessage);
+      Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     } finally {
       setSaving(false);
     }
@@ -64,6 +99,10 @@ export default function EditArticle() {
         </Flex>
       </DashboardLayout>
     );
+  }
+
+  if (error && !loading && !saving) {
+    // remover
   }
 
   return (
@@ -107,7 +146,7 @@ export default function EditArticle() {
                 <Flex gap={6} align="flex-start">
                   <Box flex={1}>
                     <Input 
-                      value={imageFile ? imageFile.name : ''} 
+                      value={imageFile ? imageFile.name : (imagePreview ? imagePreview.split('/').pop() : '')}
                       placeholder="Adicione uma imagem" 
                       isReadOnly
                       size="md"
@@ -170,11 +209,6 @@ export default function EditArticle() {
                   required 
                 />
               </FormControl>
-              {error && (
-                <Text color="red.500" fontSize="md" mt={3}>
-                  {error}
-                </Text>
-              )}
             </form>
           </Box>
         </Box>

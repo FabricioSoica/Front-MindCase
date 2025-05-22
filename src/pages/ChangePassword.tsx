@@ -1,6 +1,7 @@
 import { Box, Button, Flex, FormControl, FormLabel, Input, Text, Link as ChakraLink } from '@chakra-ui/react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 export default function ChangePassword() {
   const [email, setEmail] = useState('');
@@ -15,13 +16,41 @@ export default function ChangePassword() {
     setError('');
     setSuccess('');
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem');
+      const errorMessage = 'As senhas não coincidem';
+      setError(errorMessage);
+      Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
       return;
     }
     setLoading(true);
     // todo: chamar a api de troca de senha
-    setTimeout(() => {
-      setSuccess('Senha alterada com sucesso!');
+    setTimeout(async () => {
+      // Simulando sucesso/erro da API. Em uma implementação real, você trataria a resposta da chamada à API.
+      const apiSuccess = true; // Mude para false para testar o erro
+
+      if (apiSuccess) {
+         setSuccess('Senha alterada com sucesso!');
+         await Swal.fire({
+          title: 'Sucesso!',
+          text: 'Senha alterada com sucesso!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+      } else {
+         const errorMessage = 'Erro ao alterar a senha. Tente novamente.'; // Mensagem de erro simulada
+         setError(errorMessage);
+         await Swal.fire({
+          title: 'Erro!',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      }
+
       setLoading(false);
     }, 1000);
   };
@@ -52,8 +81,6 @@ export default function ChangePassword() {
               <FormLabel>Confirmar senha</FormLabel>
               <Input type="password" placeholder="****" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
             </FormControl>
-            {error && <Text color="red.500" mb={2} fontSize="sm">{error}</Text>}
-            {success && <Text color="green.500" mb={2} fontSize="sm">{success}</Text>}
             <Button type="submit" colorScheme="blackAlpha" bg="black" color="white" w="100%" mb={4} _hover={{ bg: 'gray.800' }} isLoading={loading}>
               Alterar
             </Button>

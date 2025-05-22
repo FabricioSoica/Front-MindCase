@@ -2,6 +2,7 @@ import { Box, Button, Flex, FormControl, FormLabel, Input, Text, Link as ChakraL
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/auth';
+import Swal from 'sweetalert2';
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -15,15 +16,35 @@ export default function Register() {
     e.preventDefault();
     setError('');
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem');
+      const errorMessage = 'As senhas não coincidem';
+      setError(errorMessage);
+      await Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
       return;
     }
     setLoading(true);
     try {
       await authService.register({ name: email.split('@')[0], email, password });
+      await Swal.fire({
+        title: 'Sucesso!',
+        text: 'Conta criada com sucesso!',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
       navigate('/');
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Erro ao registrar');
+      const errorMessage = err?.response?.data?.message || 'Erro ao registrar';
+      setError(errorMessage);
+      await Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     } finally {
       setLoading(false);
     }
@@ -55,7 +76,7 @@ export default function Register() {
               <FormLabel>Confirmar senha</FormLabel>
               <Input type="password" placeholder="****" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
             </FormControl>
-            {error && <Text color="red.500" mb={2} fontSize="sm">{error}</Text>}
+            {/* {error && <Text color="red.500" mb={2} fontSize="sm">{error}</Text>} */}
             <Button type="submit" colorScheme="blackAlpha" bg="black" color="white" w="100%" mb={4} _hover={{ bg: 'gray.800' }} isLoading={loading}>
               Criar conta
             </Button>

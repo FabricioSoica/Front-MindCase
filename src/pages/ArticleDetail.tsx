@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Text, Image, VStack, Spinner, Heading, Flex } from '@chakra-ui/react';
 import DashboardLayout from '../components/DashboardLayout';
 import { articleService } from '../services/articles';
+import Swal from 'sweetalert2';
 
 interface Article {
   id: number;
@@ -17,6 +18,7 @@ interface Article {
 
 export default function ArticleDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,16 +30,35 @@ export default function ArticleDetail() {
         const data = await articleService.getArticleById(Number(id));
         setArticle(data);
       } catch (err: any) {
-        setError(err?.response?.data?.message || 'Erro ao carregar artigo');
+        const errorMessage = err?.response?.data?.message || 'Erro ao carregar artigo';
+        setError(errorMessage);
         console.error("Erro ao buscar artigo:", err);
+        Swal.fire({
+          title: 'Erro ao carregar artigo!',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       } finally {
         setLoading(false);
       }
     }
+
     if (id) {
       fetchArticle();
+    } else {
+       const errorMessage = 'ID do artigo não fornecido.';
+       setError(errorMessage);
+       Swal.fire({
+          title: 'Erro!',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+       setLoading(false);
     }
-  }, [id]);
+
+  }, [id, navigate]);
 
   // Função para formatar a data (reutilizada do Feed.tsx)
   const formatDate = (dateString: string) => {
@@ -55,21 +76,17 @@ export default function ArticleDetail() {
     );
   }
 
-  if (error) {
-    return (
-      <DashboardLayout>
-        <Box p={4} color="red.500">
-          <Text>Erro: {error}</Text>
-        </Box>
-      </DashboardLayout>
-    );
-  }
-
   if (!article) {
+     Swal.fire({
+        title: 'Artigo não encontrado!',
+        text: 'O artigo que você procura não existe.',
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      });
     return (
       <DashboardLayout>
         <Box p={4}>
-          <Text>Artigo não encontrado.</Text>
+          {/* <Text>Artigo não encontrado.</Text> */} 
         </Box>
       </DashboardLayout>
     );
