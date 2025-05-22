@@ -1,54 +1,65 @@
-# React + TypeScript + Vite
+# Front-MindCase
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interface de usuário (frontend) para a aplicação de blog MindCase, desenvolvida com React, TypeScript e Chakra UI.
 
-Currently, two official plugins are available:
+## 🚀 Tecnologias
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React
+- TypeScript
+- Chakra UI
+- React Router DOM
+- Axios
+- SweetAlert2
 
-## Expanding the ESLint configuration
+## 📋 Pré-requisitos
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js (versão 14 ou superior)
+- O backend da aplicação rodando (por padrão em `http://localhost:3000`)
+- npm ou yarn
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 🔧 Instalação
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/FabricioSoica/Front-MindCase
+cd Front-MindCase
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+2. Instale as dependências:
+```bash
+npm install
+# ou
+yarn install
 ```
+
+## ⚙️ Configuração
+
+A URL base da API do backend está configurada em `src/config/axios.ts`. Por padrão, é `http://localhost:3000/api`. Se o seu backend estiver rodando em um endereço/porta diferente, atualize este arquivo:
+
+```typescript
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:3000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+```
+
+## ▶️ Rodando a Aplicação
+
+Para iniciar o servidor de desenvolvimento:
+
+```bash
+npm start
+# ou
+yarn start
+```
+
+A aplicação estará disponível em `http://localhost:5173` (ou outra porta disponível).
+
+## ✨ Autor
+
+[FabricioSoica](https://github.com/fabriciosoica)
