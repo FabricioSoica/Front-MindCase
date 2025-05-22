@@ -66,19 +66,29 @@ export const articleService = {
   },
 
   async updateArticle(id: number, data: UpdateArticleData): Promise<Article> {
-    const formData = new FormData();
-    formData.append('title', data.title);
-    formData.append('content', data.content);
     if (data.featuredImage) {
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('content', data.content);
       formData.append('featuredImage', data.featuredImage);
-    }
 
-    const response = await api.put<Article>(`/articles/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+      const response = await api.put<Article>(`/articles/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } else {
+      const response = await api.put<Article>(`/articles/${id}`, {
+        title: data.title,
+        content: data.content,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    }
   },
 
   async deleteArticle(id: number): Promise<void> {

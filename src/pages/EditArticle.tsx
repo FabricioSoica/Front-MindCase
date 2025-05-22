@@ -4,7 +4,6 @@ import { Box, Button, Flex, FormControl, FormLabel, Input, Text, HStack, Textare
 import DashboardLayout from '../components/Header';
 import { articleService } from '../services/articles';
 import Swal from 'sweetalert2';
-import axios from 'axios';
 
 export default function EditArticle() {
   const { id } = useParams();
@@ -85,35 +84,12 @@ export default function EditArticle() {
       return;
     }
 
-    const url = `http://localhost:3000/api/articles/${id}`;
-
     try {
-      if (imageFile) {
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('content', content);
-        formData.append('featuredImage', imageFile);
-
-        await axios.put(url, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-      } else {
-        const jsonData = {
-          title: title,
-          content: content,
-        };
-
-        await axios.put(url, jsonData, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-      }
+      await articleService.updateArticle(Number(id), {
+        title,
+        content,
+        featuredImage: imageFile || undefined
+      });
 
       await Swal.fire({
         title: 'Sucesso!',
