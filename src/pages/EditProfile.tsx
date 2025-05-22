@@ -4,12 +4,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { authService } from '../services/auth';
 import DashboardLayout from '../components/DashboardLayout';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 interface UserData {
   id: number;
   name: string;
   email: string;
   avatarUrl?: string;
+  avatar?: string;
 }
 
 export default function EditProfile() {
@@ -30,7 +32,10 @@ export default function EditProfile() {
         setUser(storedUser);
         setName(storedUser.name || '');
         setEmail(storedUser.email || '');
-        if (storedUser.avatarUrl) setAvatarUrl(storedUser.avatarUrl);
+        // Atualizar a URL do avatar usando o campo avatar do banco
+        if (storedUser.avatar) {
+          setAvatarUrl(`http://localhost:3000/uploads/${storedUser.avatar}`);
+        }
       } else {
         navigate('/login');
       }
@@ -41,8 +46,9 @@ export default function EditProfile() {
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setAvatarFile(e.target.files[0]);
-      setAvatarUrl(URL.createObjectURL(e.target.files[0]));
+      const file = e.target.files[0];
+      setAvatarFile(file);
+      setAvatarUrl(URL.createObjectURL(file));
     }
   };
 
@@ -64,17 +70,58 @@ export default function EditProfile() {
       return;
     }
 
+    const token = localStorage.getItem('token');
+    if (!token) {
+      const errorMessage = 'Usuário não autenticado.';
+      setError(errorMessage);
+      setLoading(false);
+      Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
     try {
-      const updateData: { name?: string; email?: string; avatarFile?: File } = { 
-        name: name,
-        email: user.email,
-        // avatarFile: avatarFile || undefined // todo
-      };
+      const url = `http://localhost:3000/api/users/${user.id}`;
 
-      await authService.updateUser(user.id, updateData);
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('avatar', avatarFile);
 
-      const updatedUser = { ...user, name: name };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+        const response = await axios.put(url, formData, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const updatedUser = { 
+          ...user, 
+          name: response.data.user.name, 
+          avatar: response.data.user.avatar 
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        localStorage.setItem('token', response.data.token);
+        
+        // Atualizar a URL do avatar após o upload
+        if (response.data.user.avatar) {
+          setAvatarUrl(`http://localhost:3000/uploads/${response.data.user.avatar}`);
+        }
+      } else {
+        const response = await axios.put(url, { name }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const updatedUser = { ...user, name: response.data.user.name };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        localStorage.setItem('token', response.data.token);
+      }
 
       await Swal.fire({
         title: 'Sucesso!',
@@ -108,7 +155,7 @@ export default function EditProfile() {
             <FormControl mb={4}>
               <FormLabel>Inserir avatar</FormLabel>
               <HStack align="center">
-                <Input value={avatarFile ? avatarFile.name : (user?.avatarUrl ? user.avatarUrl.split('/').pop() : '')} isReadOnly />
+                <Input value={avatarFile ? avatarFile.name : (user?.avatar ? user.avatar : '')} isReadOnly />
                 <Button as="label" htmlFor="avatar-upload" colorScheme="blue" cursor="pointer" minW="110px">Selecionar</Button>
                 <Input id="avatar-upload" type="file" accept="image/*" display="none" onChange={handleAvatarChange} />
               </HStack>
@@ -128,11 +175,11 @@ export default function EditProfile() {
               <Button colorScheme="red" variant="solid" onClick={() => navigate(-1)} minW="110px">Cancelar</Button>
               <Button type="submit" colorScheme="blackAlpha" bg="black" color="white" isLoading={loading} minW="110px">Salvar</Button>
             </HStack>
-            {/* {error && <Text color="red.500" mt={2}>{error}</Text>} */}
+            {error && <Text color="red.500" mt={2}>{error}</Text>}
           </form>
         </Box>
         <Box minW="260px" display="flex" flexDirection="column" alignItems="center" mt={12}>
-          <Avatar size="2xl" src={avatarUrl} boxSize="220px" />
+          <Avatar size="2xl" border="5px solid #ccc" src={avatarUrl} boxSize="220px" />
         </Box>
       </Flex>
     </DashboardLayout>

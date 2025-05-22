@@ -21,6 +21,13 @@ export default function DashboardLayout({ children, avatarUrl }: DashboardLayout
     navigate('/login');
   };
 
+  // Construir a URL do avatar
+  const getAvatarUrl = () => {
+    if (avatarUrl) return avatarUrl;
+    if (user?.avatar) return `http://localhost:3000/uploads/${user.avatar}`;
+    return undefined;
+  };
+
   return (
     <Box minH="100vh" bg="white">
       {/* Header */}
@@ -43,7 +50,7 @@ export default function DashboardLayout({ children, avatarUrl }: DashboardLayout
           {token ? (
             <Menu>
               <MenuButton>
-                <Avatar size="sm" src={avatarUrl || user?.avatarUrl} />
+                <Avatar size="sm" src={getAvatarUrl()} />
               </MenuButton>
               <MenuList>
                 <MenuItem
