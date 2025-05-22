@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Text, Image, VStack, Spinner, Heading, Flex } from '@chakra-ui/react';
-import DashboardLayout from '../components/DashboardLayout';
+import DashboardLayout from '../components/Header';
 import { articleService } from '../services/articles';
 import Swal from 'sweetalert2';
 
@@ -60,7 +60,6 @@ export default function ArticleDetail() {
 
   }, [id, navigate]);
 
-  // Função para formatar a data (reutilizada do Feed.tsx)
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('pt-BR', options);

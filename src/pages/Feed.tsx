@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box, Text, Image, VStack, Flex, SimpleGrid, Heading } from '@chakra-ui/react';
-import DashboardLayout from "../components/DashboardLayout";
+import DashboardLayout from "../components/Header";
 import { articleService } from '../services/articles';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';

@@ -2,7 +2,7 @@ import { Box, Button, Flex, FormControl, FormLabel, Input, Text, Avatar, HStack 
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { authService } from '../services/auth';
-import DashboardLayout from '../components/DashboardLayout';
+import DashboardLayout from '../components/Header';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -32,7 +32,6 @@ export default function EditProfile() {
         setUser(storedUser);
         setName(storedUser.name || '');
         setEmail(storedUser.email || '');
-        // Atualizar a URL do avatar usando o campo avatar do banco
         if (storedUser.avatar) {
           setAvatarUrl(`http://localhost:3000/uploads/${storedUser.avatar}`);
         }

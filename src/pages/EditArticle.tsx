@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Button, Flex, FormControl, FormLabel, Input, Text, HStack, Textarea, Image, Spinner } from '@chakra-ui/react';
-import DashboardLayout from '../components/DashboardLayout';
+import DashboardLayout from '../components/Header';
 import { articleService } from '../services/articles';
 import Swal from 'sweetalert2';
 import axios from 'axios';

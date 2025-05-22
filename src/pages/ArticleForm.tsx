@@ -2,7 +2,7 @@ import { Box, Button, Flex, FormControl, FormLabel, Input, Text, Avatar, HStack,
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { articleService } from '../services/articles';
-import DashboardLayout from '../components/DashboardLayout';
+import DashboardLayout from '../components/Header';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 

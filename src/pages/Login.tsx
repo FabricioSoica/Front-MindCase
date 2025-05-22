@@ -36,8 +36,6 @@ export default function Login() {
         confirmButtonText: 'OK'
       });
     } finally {
-      // Em caso de sucesso ou falha, você pode querer limpar o campo de senha
-      // setPassword(''); 
     }
   };
 
