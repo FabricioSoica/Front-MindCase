@@ -17,7 +17,6 @@ export default function EditProfile() {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [name, setName] = useState('');
-  const [surname, setSurname] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,8 +27,7 @@ export default function EditProfile() {
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
       if (storedUser && storedUser.id) {
         setUser(storedUser);
-        setName(storedUser.name?.split(' ')[0] || '');
-        setSurname(storedUser.name?.split(' ').slice(1).join(' ') || '');
+        setName(storedUser.name || '');
         setEmail(storedUser.email || '');
         if (storedUser.avatarUrl) setAvatarUrl(storedUser.avatarUrl);
       } else {
@@ -60,14 +58,14 @@ export default function EditProfile() {
 
     try {
       const updateData: { name?: string; email?: string; avatarFile?: File } = { 
-        name: `${name} ${surname}`, 
+        name: name,
         email: user.email,
         // avatarFile: avatarFile || undefined // todo
       };
 
       await authService.updateUser(user.id, updateData);
 
-      const updatedUser = { ...user, name: `${name} ${surname}` };
+      const updatedUser = { ...user, name: name };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       navigate(`/user/${user.id}`);
     } catch (err: any) {
@@ -97,12 +95,8 @@ export default function EditProfile() {
               <Input value={email} isReadOnly bg="gray.100" />
             </FormControl>
             <FormControl mb={4}>
-              <FormLabel>Nome</FormLabel>
+              <FormLabel>Nome Completo</FormLabel>
               <Input value={name} onChange={e => setName(e.target.value)} required />
-            </FormControl>
-            <FormControl mb={4}>
-              <FormLabel>Sobrenome</FormLabel>
-              <Input value={surname} onChange={e => setSurname(e.target.value)} required />
             </FormControl>
             <Button mb={6} colorScheme="gray" variant="outline" onClick={() => navigate('/changepassword')}>
               Alterar senha

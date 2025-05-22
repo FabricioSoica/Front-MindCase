@@ -2,6 +2,7 @@ import { Box, Button, Flex, FormControl, FormLabel, Input, Text, Link as ChakraL
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/auth';
+import Swal from 'sweetalert2';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -14,9 +15,22 @@ export default function Login() {
     setError('');
     try {
       await authService.login({ email, password });
+      await Swal.fire({
+        title: 'Sucesso!',
+        text: 'Login realizado com sucesso',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
       navigate('/');
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Erro ao fazer login');
+      const errorMessage = err?.response?.data?.message || 'Erro ao fazer login';
+      setError(errorMessage);
+      await Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     }
   };
 
@@ -45,7 +59,6 @@ export default function Login() {
             <Box textAlign="right" mb={4}>
               <ChakraLink as={Link} to="/changepassword" fontSize="sm">Esqueceu a senha?</ChakraLink>
             </Box>
-            {error && <Text color="red.500" mb={2} fontSize="sm">{error}</Text>}
             <Button type="submit" colorScheme="blackAlpha" bg="black" color="white" w="100%" mb={4} _hover={{ bg: 'gray.800' }}>
               Entrar
             </Button>
