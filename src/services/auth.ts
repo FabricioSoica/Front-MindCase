@@ -30,6 +30,11 @@ interface UpdateUserData {
   avatarFile?: File;
 }
 
+interface ChangePasswordData {
+  email: string;
+  newPassword: string;
+}
+
 export const authService = {
   async register(data: RegisterData): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>('/users/register', data);
@@ -50,6 +55,10 @@ export const authService = {
     localStorage.setItem('token', response.data.token);
     localStorage.setItem('user', JSON.stringify(response.data.user));
     return response.data;
+  },
+
+  async changePassword(data: ChangePasswordData): Promise<void> {
+    await api.post('/users/change-password', data);
   },
 
   logout(): void {

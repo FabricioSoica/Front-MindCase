@@ -1,20 +1,29 @@
-import { Box, Button, Flex, FormControl, FormLabel, Input, Text, Link as ChakraLink } from '@chakra-ui/react';
+import { Box, Button, Flex, FormControl, FormLabel, Input, Text, Link as ChakraLink, InputGroup, InputRightElement, IconButton } from '@chakra-ui/react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { authService } from '../services/auth';
 
 export default function ChangePassword() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleShowPasswordClick = () => setShowPassword(!showPassword);
+  const handleShowConfirmPasswordClick = () => setShowConfirmPassword(!showConfirmPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    
     if (password !== confirmPassword) {
       const errorMessage = 'As senhas não coincidem';
       setError(errorMessage);
@@ -27,32 +36,32 @@ export default function ChangePassword() {
       return;
     }
     setLoading(true);
-    // todo: chamar a api de troca de senha
-    setTimeout(async () => {
-      // Simulando sucesso/erro da API. Em uma implementação real, você trataria a resposta da chamada à API.
-      const apiSuccess = true; // Mude para false para testar o erro
+    try {
+      await authService.changePassword({
+        email,
+        newPassword: password
+      });
 
-      if (apiSuccess) {
-         setSuccess('Senha alterada com sucesso!');
-         await Swal.fire({
-          title: 'Sucesso!',
-          text: 'Senha alterada com sucesso!',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        });
-      } else {
-         const errorMessage = 'Erro ao alterar a senha. Tente novamente.'; // Mensagem de erro simulada
-         setError(errorMessage);
-         await Swal.fire({
-          title: 'Erro!',
-          text: errorMessage,
-          icon: 'error',
-          confirmButtonText: 'OK'
-        });
-      }
-
+      setSuccess('Senha alterada com sucesso!');
+      await Swal.fire({
+        title: 'Sucesso!',
+        text: 'Senha alterada com sucesso!',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
+      navigate('/login');
+    } catch (error) {
+      const errorMessage = 'Erro ao alterar a senha. Tente novamente.';
+      setError(errorMessage);
+      await Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -75,11 +84,47 @@ export default function ChangePassword() {
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>Senha</FormLabel>
-              <Input type="password" placeholder="****" value={password} onChange={e => setPassword(e.target.value)} required />
+              <InputGroup size="md">
+                <Input
+                  pr="4.5rem"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="****"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
+                <InputRightElement width="4.5rem">
+                  <IconButton
+                    h="1.75rem"
+                    size="sm"
+                    onClick={handleShowPasswordClick}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  />
+                </InputRightElement>
+              </InputGroup>
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>Confirmar senha</FormLabel>
-              <Input type="password" placeholder="****" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
+              <InputGroup size="md">
+                <Input
+                  pr="4.5rem"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="****"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <InputRightElement width="4.5rem">
+                  <IconButton
+                    h="1.75rem"
+                    size="sm"
+                    onClick={handleShowConfirmPasswordClick}
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  />
+                </InputRightElement>
+              </InputGroup>
             </FormControl>
             <Button type="submit" colorScheme="blackAlpha" bg="black" color="white" w="100%" mb={4} _hover={{ bg: 'gray.800' }} isLoading={loading}>
               Alterar
