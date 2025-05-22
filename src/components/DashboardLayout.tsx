@@ -44,7 +44,19 @@ export default function DashboardLayout({ children, avatarUrl }: DashboardLayout
         </Text>
         <HStack spacing={6} align="center">
           <Text as="a" href="/" fontWeight="medium">Home</Text>
-          <Text as="a" href="/" fontWeight="medium">Artigos</Text>
+          <Text 
+            as="a" 
+            href={user?.id ? `/my-articles/${user.id}` : '#'} 
+            fontWeight="medium"
+            onClick={(e) => { 
+              if (!user?.id) { 
+                e.preventDefault(); 
+                navigate('/login'); 
+              }
+            }}
+          >
+            Meus Artigos
+          </Text>
           <Text>|</Text>
           <Text as="a" href="/article/new" fontWeight="medium">Publicar</Text>
           {token ? (

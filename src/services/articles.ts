@@ -44,6 +44,11 @@ export const articleService = {
     return response.data;
   },
 
+  async getArticlesByAuthorId(authorId: number): Promise<Article[]> {
+    const response = await api.get<Article[]>(`/articles/author/${authorId}`);
+    return response.data;
+  },
+
   async createArticle(data: CreateArticleData): Promise<Article> {
     const formData = new FormData();
     formData.append('title', data.title);
