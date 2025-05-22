@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { articleService } from '../services/articles';
 import DashboardLayout from '../components/DashboardLayout';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 export default function ArticleForm() {
   const [title, setTitle] = useState('');
@@ -18,6 +19,9 @@ export default function ArticleForm() {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
       setImagePreview(URL.createObjectURL(e.target.files[0]));
+    } else {
+      setImageFile(null);
+      setImagePreview(null);
     }
   };
 
@@ -25,8 +29,50 @@ export default function ArticleForm() {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+       const errorMessage = 'Usuário não autenticado.';
+       setError(errorMessage);
+       Swal.fire({
+          title: 'Erro!',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+       setLoading(false);
+       return;
+    }
+
+    const url = 'http://localhost:3000/api/articles';
+
     try {
-      await articleService.createArticle({ title, content, featuredImage: imageFile || undefined });
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('featuredImage', imageFile);
+
+        await axios.post(url, formData, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+      } else {
+        const jsonData = {
+          title: title,
+          content: content,
+        };
+
+        await axios.post(url, jsonData, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+      }
 
       await Swal.fire({
         title: 'Sucesso!',

@@ -4,6 +4,7 @@ import { Box, Button, Flex, FormControl, FormLabel, Input, Text, HStack, Textare
 import DashboardLayout from '../components/DashboardLayout';
 import { articleService } from '../services/articles';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 export default function EditArticle() {
   const { id } = useParams();
@@ -24,7 +25,7 @@ export default function EditArticle() {
         setTitle(data.title);
         setContent(data.content);
         if (data.featuredImage) {
-          const imageUrl = data.featuredImage.startsWith('http') ? data.featuredImage : `http://localhost:3000${data.featuredImage}`;
+          const imageUrl = data.featuredImage.startsWith('http') ? data.featuredImage : `http://localhost:3000/uploads/${data.featuredImage}`;
           setImagePreview(imageUrl);
         }
       } catch (err: any) {
@@ -59,6 +60,8 @@ export default function EditArticle() {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
       setImagePreview(URL.createObjectURL(e.target.files[0]));
+    } else {
+      setImageFile(null);
     }
   };
 
@@ -66,8 +69,51 @@ export default function EditArticle() {
     e.preventDefault();
     setError('');
     setSaving(true);
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      const errorMessage = 'Usuário não autenticado.';
+      setError(errorMessage);
+      Swal.fire({
+        title: 'Erro!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      setSaving(false);
+      return;
+    }
+
+    const url = `http://localhost:3000/api/articles/${id}`;
+
     try {
-      await articleService.updateArticle(Number(id!), { title, content, featuredImage: imageFile || undefined });
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('featuredImage', imageFile);
+
+        await axios.put(url, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+      } else {
+        const jsonData = {
+          title: title,
+          content: content,
+        };
+
+        await axios.put(url, jsonData, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+      }
 
       await Swal.fire({
         title: 'Sucesso!',

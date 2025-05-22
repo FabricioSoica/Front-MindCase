@@ -100,7 +100,7 @@ export default function ArticleDetail() {
           <Text fontSize="sm" color="gray.500">Por {article.User.name} - {formatDate(article.createdAt)}</Text>
           {article.featuredImage && (
             <Image 
-              src={`http://localhost:3000${article.featuredImage}`}
+              src={`http://localhost:3000/uploads/${article.featuredImage}`}
               alt={article.title}
               maxH="400px"
               width="100%"

@@ -60,7 +60,7 @@ export default function Feed() {
               overflow="hidden" 
               pb={4}
             >
-              <Image src={`http://localhost:3000${article.featuredImage}`} alt={article.title} width="50%" height="30vh" objectFit="cover" />
+              <Image src={`http://localhost:3000/uploads/${article.featuredImage}`} alt={article.title} width="40%" height="25vh" objectFit="cover" />
               <Box p={4}>
                 <Heading as="h3" size="md" mb={2}>{article.title}</Heading>
                 <Text fontSize="sm" color="gray.500">Por {article.User.name} - {formatDate(article.createdAt)}</Text>
