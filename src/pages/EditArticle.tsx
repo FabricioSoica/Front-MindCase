@@ -18,6 +18,7 @@ export default function EditArticle() {
 
   useEffect(() => {
     async function fetchArticle() {
+      /* Deixei o chamado da api aqui pois tive problemas ao colocar no services */
       setLoading(true);
       try {
         const data = await articleService.getArticleById(Number(id!));
