@@ -1,4 +1,5 @@
-import { Box, Button, Flex, FormControl, FormLabel, Input, Text, Link as ChakraLink } from '@chakra-ui/react';
+import { Box, Button, Flex, FormControl, FormLabel, Input, Text, Link as ChakraLink, InputGroup, InputRightElement, IconButton } from '@chakra-ui/react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/auth';
@@ -7,8 +8,11 @@ import Swal from 'sweetalert2';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleShowClick = () => setShowPassword(!showPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +35,9 @@ export default function Login() {
         icon: 'error',
         confirmButtonText: 'OK'
       });
+    } finally {
+      // Em caso de sucesso ou falha, você pode querer limpar o campo de senha
+      // setPassword(''); 
     }
   };
 
@@ -54,7 +61,25 @@ export default function Login() {
             </FormControl>
             <FormControl mb={2}>
               <FormLabel>Senha</FormLabel>
-              <Input type="password" placeholder="********" value={password} onChange={e => setPassword(e.target.value)} required />
+              <InputGroup size="md">
+                <Input
+                  pr="4.5rem"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="********"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
+                <InputRightElement width="4.5rem">
+                  <IconButton
+                    h="1.75rem"
+                    size="sm"
+                    onClick={handleShowClick}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  />
+                </InputRightElement>
+              </InputGroup>
             </FormControl>
             <Box textAlign="right" mb={4}>
               <ChakraLink as={Link} to="/changepassword" fontSize="sm">Esqueceu a senha?</ChakraLink>
